@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divisor de Texto para Tradução e Adaptação Cultural de Roteiros</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-hover: #45a049;
+            --danger-color: #f44336;
+            --danger-hover: #e53935;
+            --bg-color: #f9f9f9;
+            --text-color: #333;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: var(--text-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        textarea, input, button, select {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        textarea {
+            height: 200px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.cancel {
+            background-color: var(--danger-color);
+        }
+
+        button.cancel:hover {
+            background-color: var(--danger-hover);
+        }
+
+        button.clicked {
+            background-color: #ddd;
+            color: #888;
+            cursor: default;
+        }
+
+        .success-message {
+            background-color: rgba(76, 175, 80, 0.2);
+            border-left: 4px solid var(--primary-color);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .chunk {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .chunk:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+
+        .chunk.clicked {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .chunk h3 {
+            margin: 0;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+
+        .chunk p {
+            margin: 8px 0;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+            color: var(--primary-color);
+        }
+
+        .dropdown-button {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 12px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+
+        .radio-group label:hover {
+            border-color: var(--primary-color);
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: 8px;
+            width: auto;
+        }
+
+        .radio-group input[type="radio"]:checked + span {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .signature {
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .top-signature {
+            font-size: 12px;
+            color: #888;
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .counter {
+            font-size: 12px;
+            color: #888;
+            text-align: right;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .limit-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .limit-input input {
+            width: auto;
+            flex: 1;
+        }
+
+        .limit-input label {
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Divisor de Texto para Tradução e Adaptação Cultural de Roteiros</h1>
+    <div class="top-signature">Desenvolvido por @jhowreix</div>
+
+    <div class="section">
+        <div class="section-title">
+            <h2>Configurações do Projeto</h2>
+        </div>
+
+
+        <div class="input-group">
+            <label for="niche">Escolha o Nicho que quer adaptar:</label>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="niche" value="historias" checked>
+                    <span>Histórias Emocionantes</span>
+                </label>
+                <label>
+                    <input type="radio" name="niche" value="generico">
+                    <span>Nicho Genérico</span>
+                </label>
+                <label>
+                    <input type="radio" name="niche" value="espiritualidade">
+                    <span>Espiritualidade Cristã</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="language">Idioma/País:</label>
+            <div class="dropdown">
+                <input type="text" id="language" placeholder="Selecione ou digite o idioma..."  >
+                <button type="button" class="dropdown-button" onclick="toggleDropdown()">▾</button>
+                <div id="dropdown-content" class="dropdown-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">
+            <h2>Texto para Divisão</h2>
+        </div>
+
+        <textarea id="fullText" placeholder="Insira o texto completo aqui..." oninput="updateCounter('fullText', 'fullTextCounter')"></textarea>
+        <div class="counter" id="fullTextCounter">[ Caracteres: 0 | Palavras: 0 ]</div>
+
+        <div class="limit-input">
+            <label for="charLimit">Limite de caracteres por bloco:</label>
+            <input type="number" id="charLimit" value="7000" min="1000" max="15000">
+        </div>
+
+        <button onclick="divideText()">Dividir Texto</button>
+    </div>
+
+    <div id="result" class="result"></div>
+
+    <hr style="border: 1px solid var(--border-color); margin: 40px 0;">
+
+    <div class="section">
+        <div class="section-title">
+            <h2>Extrator de Texto Adaptado</h2>
+        </div>
+
+        <textarea id="inputText" placeholder="Cole a resposta da IA aqui..." oninput="updateCounter('inputText', 'inputTextCounter')"></textarea>
+        <div class="counter" id="inputTextCounter">[ Caracteres: 0 | Palavras: 0 ]</div>
+
+        <div class="success-message" id="copySuccess">Texto copiado com sucesso!</div>
+
+        <button onclick="extractAdaptedText()">Extrair Texto Adaptado</button>
+        <button class="cancel" onclick="clearText()">Limpar Campo</button>
+    </div>
+
+    <button class="cancel" onclick="resetAll()">Resetar Tudo</button>
+
+    <script>
+        // Inicializar os idiomas quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLanguageOptions();
+        });
+
+        // Ao mudar o nicho, atualizar as opções de idioma
+        document.querySelectorAll('input[name="niche"]').forEach(radio => {
+            radio.addEventListener('change', updateLanguageOptions);
+        });
+
+        function toggleDropdown() {
+            var dropdown = document.getElementById("dropdown-content");
+            if (dropdown.style.display === "block") {
+                dropdown.style.display = "none";
+            } else {
+                dropdown.style.display = "block";
+            }
+        }
+
+        function selectLanguage(language) {
+            document.getElementById("language").value = language;
+            document.getElementById("dropdown-content").style.display = "none";
+        }
+
+        function updateLanguageOptions() {
+            const niche = document.querySelector('input[name="niche"]:checked').value;
+            const languageInput = document.getElementById("language");
+            const dropdownContent = document.getElementById("dropdown-content");
+            let languageOptions = [];
+
+            if (niche === 'historias') {
+                languageInput.placeholder = "Selecione um idioma ou Digite: '[idioma] com a história se passando no [país do idioma]'";
+                languageOptions = [
+                    'Inglês com a história se passando nos Estados Unidos',
+                    'Francês com a história se passando na França',
+                    'Romeno com a história se passando na Romênia',
+                    'Alemão com a história se passando na Alemanha',
+                    'Italiano com a história se passando na Itália',
+                    'Polonês com a história se passando na Polônia',
+                    'Espanhol com a história se passando no México',
+                    'Português com a história se passando no Brasil',
+                    'Coreano com a história se passando na Coreia do Sul'
+                ];
+            } else if (niche === 'generico') {
+                languageInput.placeholder = "Selecione um idioma ou Digite: '[idioma] do [país do idioma]'";
+                languageOptions = [
+                    'Inglês dos Estados Unidos',
+                    'Francês da França',
+                    'Romeno da Romênia',
+                    'Alemão da Alemanha',
+                    'Italiano da Itália',
+                    'Polonês da Polônia',
+                    'Espanhol do México',
+                    'Português do Brasil',
+                    'Coreano da Coreia do Sul'
+                ];
+            } else if (niche === 'espiritualidade') {
+                languageInput.placeholder = "Selecione um idioma ou Digite: '[idioma] adaptado ao contexto cristão do [país do idioma]'";
+                languageOptions = [
+                    'Inglês adaptado ao contexto cristão dos Estados Unidos',
+                    'Francês adaptado ao contexto cristão da França',
+                    'Romeno adaptado ao contexto cristão da Romênia',
+                    'Alemão adaptado ao contexto cristão da Alemanha',
+                    'Italiano adaptado ao contexto cristão da Itália',
+                    'Polonês adaptado ao contexto cristão da Polônia',
+                    'Espanhol adaptado ao contexto cristão do México',
+                    'Português adaptado ao contexto cristão do Brasil',
+                    'Coreano adaptado ao contexto cristão da Coreia do Sul'
+                ];
+            }
+
+            // Ordenar idiomas alfabeticamente para facilitar a busca
+            languageOptions.sort();
+
+            // Limpar e preencher o dropdown
+            dropdownContent.innerHTML = '';
+
+            languageOptions.forEach(option => {
+                const link = document.createElement('a');
+                link.href = "#";
+                link.textContent = option;
+                link.onclick = function(e) {
+                    e.preventDefault();
+                    selectLanguage(option);
+                    return false;
+                };
+                dropdownContent.appendChild(link);
+            });
+
+            // Se houver um idioma selecionado e ele não estiver na lista, limpe (removido, pois agora o campo é editável)
+        }
+
+        function divideText() {
+            const fullText = document.getElementById('fullText').value;
+            if (!fullText.trim()) {
+                alert('Por favor, insira um texto para dividir.');
+                return;
+            }
+
+            const charLimit = parseInt(document.getElementById('charLimit').value);
+            if (isNaN(charLimit) || charLimit < 100) {
+                alert('Por favor, insira um limite de caracteres válido (mínimo 100).');
+                return;
+            }
+
+            const language = document.getElementById('language').value;
+            if (!language.trim()) {
+                alert('Por favor, selecione ou digite um idioma de destino.');
+                return;
+            }
+
+            const niche = document.querySelector('input[name="niche"]:checked').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            const paragraphs = fullText.split('\n');
+            let currentChunk = '';
+            let chunks = [];
+
+            for (let paragraph of paragraphs) {
+                if ((currentChunk + paragraph).length > charLimit) {
+                    if (currentChunk) {
+                        chunks.push(currentChunk.trim());
+                        currentChunk = '';
+                    }
+
+                    if (paragraph.length > charLimit) {
+                        const words = paragraph.split(' ');
+                        let tempChunk = '';
+
+                        for (let word of words) {
+                            if ((tempChunk + word).length > charLimit) {
+                                chunks.push(tempChunk.trim());
+                                tempChunk = word + ' ';
+                            } else {
+                                tempChunk += word + ' ';
+                            }
+                        }
+
+                        if (tempChunk) currentChunk = tempChunk;
+                    } else {
+                        currentChunk = paragraph + '\n';
+                    }
+                } else {
+                    currentChunk += paragraph + '\n';
+                }
+            }
+
+            if (currentChunk) chunks.push(currentChunk.trim());
+
+            // Criar seção de resultado
+            const resultSection = document.createElement('div');
+            resultSection.className = 'section';
+            resultDiv.appendChild(resultSection);
+
+            const sectionTitle = document.createElement('div');
+            sectionTitle.className = 'section-title';
+            sectionTitle.innerHTML = '<h2>Blocos Gerados</h2>';
+            resultSection.appendChild(sectionTitle);
+
+            const summary = document.createElement('p');
+            summary.innerHTML = `Foram gerados <strong>${chunks.length}</strong> bloco(s) de tradução para "<strong>${language}</strong>".`;
+            resultSection.appendChild(summary);
+
+            const grid = document.createElement('div');
+            grid.className = 'grid';
+            resultSection.appendChild(grid);
+
+            chunks.forEach((chunk, index) => {
+                const chunkDiv = document.createElement('div');
+                chunkDiv.className = 'chunk';
+
+                // Limitar a visualização do texto para evitar problemas de formatação
+                let previewText = chunk.substring(0, 50);
+                if (chunk.length > 50) previewText += '...';
+
+                chunkDiv.innerHTML = `
+                    <h3>Parte ${index + 1}</h3>
+                    <p>${previewText}</p>
+                `;
+
+                chunkDiv.addEventListener('click', () => {
+                    // Destacar o bloco selecionado
+                    document.querySelectorAll('.chunk').forEach(c => c.classList.remove('clicked'));
+                    chunkDiv.classList.add('clicked');
+
+                    // Copiar o prompt
+                    copyText(generatePrompt(niche, language, index + 1, chunk));
+
+                    // Feedback visual
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'success-message';
+                    successMsg.style.display = 'block';
+                    successMsg.textContent = `Prompt da parte ${index + 1} copiado! Cole no chat da IA.`;
+                    chunkDiv.appendChild(successMsg);
+
+                    setTimeout(() => {
+                        successMsg.style.opacity = '0';
+                        setTimeout(() => {
+                            if (chunkDiv.contains(successMsg)) {
+                                chunkDiv.removeChild(successMsg);
+                            }
+                        }, 300);
+                    }, 2000);
+                });
+
+                grid.appendChild(chunkDiv);
+            });
+        }
+
+        function copyText(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        console.log('Texto copiado com sucesso!');
+                    })
+                    .catch(err => {
+                        console.error('Erro ao copiar texto: ', err);
+                        fallbackCopyTextToClipboard(text);
+                    });
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (!successful) console.error('Fallback: Cópia não teve sucesso');
+            } catch (err) {
+                console.error('Fallback: Não foi possível copiar', err);
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function generatePrompt(niche, language, partNumber, text) {
+            let prompt = '';
+
+            if (niche === 'historias') {
+                prompt = `Você é um especialista em adaptação cultural de roteiros e narrativas. Sua tarefa é adaptar esta parte da história para ${language}, garantindo que ela ressoe com o público-alvo sem alterar os acontecimentos principais. Isso não é uma tradução literal, mas sim uma adaptação cultural.
+Esta é a parte ${partNumber} do texto. A história será enviada em trechos, e você deve manter a coerência em todas as partes.
+
+Diretrizes de Adaptação:
+- Adapte nomes, locais e referências culturais para equivalentes naturais no idioma/cultura-alvo, garantindo que sejam reconhecíveis e relevantes para o público.
+- Ajuste expressões idiomáticas, trocadilhos e humor para garantir que tenham o mesmo impacto na cultura-alvo. Se não houver equivalentes diretos, adapte o tom ou substitua por uma alternativa apropriada.
+- Mantenha a coerência e o estilo de escrita do original. Se o texto for formal, coloquial ou técnico, preserve esse tom na adaptação.
+- Referências históricas, políticas e sociais devem ser avaliadas cuidadosamente. Se necessário, adapte ou adicione contexto para evitar confusão ou anacronismos.
+- Defina um nível de liberdade criativa: Pequenas mudanças são permitidas apenas quando estritamente necessárias para garantir fluidez e naturalidade, mas devem ser sutis e jamais comprometer a intenção original do autor. Sempre priorize manter o significado e a essência do texto.
+- Verifique a consistência com adaptações anteriores. Utilize os mesmos nomes, locais e detalhes culturais previamente estabelecidos para garantir continuidade.
+
+Processo de Controle e Consistência:
+- Antes de começar, verifique as adaptações feitas nas partes anteriores e utilize as mesmas escolhas para manter coerência.
+- No final da adaptação, gere uma lista detalhada de todas as mudanças feitas, incluindo nomes, locais e referências culturais.
+- Se houver dúvidas sobre uma adaptação, prefira manter o significado original ou fazer uma escolha que melhor preserve a intenção do autor.
+
+Texto a ser adaptado: [[ ${text} ]]
+Adapte o texto acima seguindo as instruções fornecidas. Ao final, inclua a lista de adaptações feitas nesta parte para referência futura.
+
+Formato da Resposta:
+Texto Adaptado:
+[[ Texto da parte atual aqui, já adaptado ]]
+
+Lista de Adaptações Feitas Nesta Parte:
+- Nome original → Nome adaptado
+- Local original → Local adaptado
+- Expressão original → Expressão equivalente
+- Referência cultural ajustada → Breve explicação da mudança`;
+
+            } else if (niche === 'generico') {
+                prompt = `Você é um especialista em adaptação cultural de conteúdos. Sua tarefa é adaptar esta parte do conteúdo para ${language}, garantindo que ele ressoe com o público-alvo sem alterar os pontos principais. Isso não é uma tradução literal, mas sim uma adaptação cultural.
+Esta é a parte ${partNumber} do conteúdo. O conteúdo será enviado em trechos, e você deve manter a coerência em todas as partes.
+
+Diretrizes de Adaptação:
+- Adapte nomes, locais e referências culturais para equivalentes naturais no idioma/cultura-alvo, garantindo que sejam reconhecíveis e relevantes para o público.
+- Ajuste expressões idiomáticas, trocadilhos e referências culturais para garantir que tenham o mesmo impacto na cultura-alvo. Se não houver equivalentes diretos, adapte o tom ou substitua por uma alternativa apropriada.
+- Mantenha a coerência e o estilo de escrita do original. Se o conteúdo for formal, técnico ou coloquial, preserve esse tom na adaptação.
+- Referências históricas, políticas e sociais devem ser avaliadas cuidadosamente. Se necessário, adapte ou adicione contexto para evitar confusão ou anacronismos.
+- Defina um nível de liberdade criativa: Pequenas mudanças são permitidas apenas quando estritamente necessárias para garantir fluidez e naturalidade, mas devem ser sutis e jamais comprometer a intenção original do autor. Sempre priorize manter o significado e a essência do conteúdo.
+- Verifique a consistência com adaptações anteriores. Utilize os mesmos nomes, locais e detalhes culturais previamente estabelecidos para garantir continuidade.
+
+Processo de Controle e Consistência:
+- Antes de começar, verifique as adaptações feitas nas partes anteriores e utilize as mesmas escolhas para manter coerência.
+- No final da adaptação, gere uma lista detalhada de todas as mudanças feitas, incluindo nomes, locais e referências culturais.
+- Se houver dúvidas sobre uma adaptação, prefira manter o significado original ou fazer uma escolha que melhor preserve a intenção do autor.
+
+Texto a ser adaptado: [[ ${text} ]]
+Adapte o texto acima seguindo as instruções fornecidas. Ao final, inclua a lista de adaptações feitas nesta parte para referência futura.
+
+Formato da Resposta:
+Conteúdo Adaptado:
+[[ Texto da parte atual aqui, já adaptado ]]
+
+Lista de Adaptações Feitas Nesta Parte:
+- Nome original → Nome adaptado
+- Local original → Local adaptado
+- Expressão original → Expressão equivalente
+- Referência cultural ajustada → Breve explicação da mudança`;
+
+            } else if (niche === 'espiritualidade') {
+                prompt = `Você é um especialista em adaptação cultural de conteúdos religiosos e espirituais. Sua tarefa é adaptar esta parte do conteúdo para ${language}, garantindo que ele ressoe com o público-alvo sem alterar os pontos principais da mensagem. Isso não é uma tradução literal, mas sim uma adaptação cultural e teológica.
+Esta é a parte ${partNumber} do conteúdo. O material será enviado em trechos, e você deve manter a coerência em todas as partes.
+
+Diretrizes de Adaptação:
+- Adapte referências bíblicas e espirituais para versões reconhecidas no idioma/cultura-alvo, garantindo que sejam compreensíveis e relevantes para o público local. Se necessário, ajuste a formulação para manter o impacto e a intenção original.
+- Ajuste expressões e conceitos religiosos para garantir que façam sentido na cultura-alvo. Algumas expressões podem ter interpretações diferentes em outros idiomas e devem ser reformuladas para preservar o significado.
+- Respeite as nuances teológicas do público-alvo. Se a audiência majoritária for católica, evangélica, ortodoxa ou de outra vertente cristã, adapte o tom e os exemplos para que estejam alinhados com essa tradição.
+- Mantenha o tom e estilo do conteúdo. Se o material for reflexivo, devocional ou motivacional, preserve essa abordagem na adaptação.
+- Adapte referências culturais quando necessário. Se houver menção a figuras, eventos ou locais que não são reconhecidos na cultura-alvo, substitua por exemplos mais relevantes para o público sem comprometer a mensagem original.
+- Mantenha um nível de liberdade criativa limitado: Pequenas mudanças são permitidas apenas quando estritamente necessárias para garantir fluidez e naturalidade, mas devem ser sutis e jamais comprometer a essência espiritual do conteúdo. Sempre priorize preservar o significado original.
+- Garanta a consistência com partes anteriores. Se já houver termos, referências ou conceitos adaptados anteriormente, utilize as mesmas escolhas para manter a continuidade.
+
+Processo de Controle e Consistência:
+- Antes de começar, verifique as adaptações feitas nas partes anteriores e utilize as mesmas escolhas para manter coerência.
+- No final da adaptação, não há necessidade de listar cada versículo adaptado individualmente, apenas garanta que as mudanças feitas sejam consistentes ao longo do conteúdo.
+- Se houver dúvidas sobre uma adaptação, prefira manter o significado original ou fazer uma escolha que melhor preserve a intenção espiritual do material.
+
+Texto a ser adaptado: [[ ${text} ]]
+Adapte o texto acima seguindo as instruções fornecidas. Ao final, inclua a lista de adaptações feitas nesta parte para referência futura.
+
+Formato da Resposta:
+Conteúdo Adaptado:
+[[ TEXTO DA PARTE ATUAL AQUI, JÁ ADAPTADO ]]
+
+Lista de Adaptações Feitas Nesta Parte:
+- Nome original → Nome adaptado
+- Local original → Local adaptado
+- Expressão original → Expressão equivalente
+- Referência cultural ou espiritual ajustada → Breve explicação da mudança`;
+            }
+
+            return prompt;
+        }
+
+        function updateCounter(textareaId, counterId) {
+            const textarea = document.getElementById(textareaId);
+            const counter = document.getElementById(counterId);
+            const text = textarea.value;
+            const charCount = text.length;
+            const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+            counter.innerHTML = `[ Caracteres: ${charCount} | Palavras: ${wordCount} ]`;
+        }
+
+        function extractAdaptedText() {
+            const inputText = document.getElementById('inputText').value;
+            if (!inputText.trim()) {
+                alert('Por favor, cole a resposta da IA antes de extrair o texto.');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            const regex = /\[\[([\s\S]*?)\]\]/g;
+            let match;
+            let adaptedText = '';
+
+            while ((match = regex.exec(inputText)) !== null) {
+                adaptedText += match[1].trim() + '\n\n';
+            }
+
+            if (adaptedText) {
+                // Criar seção de resultado para o texto extraído
+                const resultSection = document.createElement('div');
+                resultSection.className = 'section';
+                resultDiv.appendChild(resultSection);
+
+                const sectionTitle = document.createElement('div');
+                sectionTitle.className = 'section-title';
+                sectionTitle.innerHTML = '<h2>Texto Extraído</h2>';
+                resultSection.appendChild(sectionTitle);
+
+                const extractedTextArea = document.createElement('textarea');
+                extractedTextArea.value = adaptedText;
+                extractedTextArea.readOnly = true;
+                resultSection.appendChild(extractedTextArea);
+
+                document.getElementById('inputText').value = adaptedText;
+
+                // Mudar o botão para copiar
+                const extractButton = document.querySelector('button[onclick="extractAdaptedText()"]');
+                extractButton.innerText = 'Copiar Texto Extraído';
+                extractButton.onclick = function() {
+                    copyText(adaptedText);
+
+                    // Mostrar mensagem de sucesso
+                    const successMsg = document.getElementById('copySuccess');
+                    successMsg.style.display = 'block';
+                    setTimeout(() => {
+                        successMsg.style.display = 'none';
+                    }, 3000);
+                };
+            } else {
+                alert('Nenhum texto adaptado encontrado entre colchetes duplos [[ ]]. Verifique se a resposta da IA está no formato correto.');
+            }
+        }
+
+        function clearText() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('inputTextCounter').innerHTML = '[ Caracteres: 0 | Palavras: 0 ]';
+
+            // Restaurar o botão de extração
+            const extractButton = document.querySelector('button[onclick="copyText(document.getElementById(\'inputText\').value)"]');
+            if (extractButton) {
+                extractButton.innerText = 'Extrair Texto Adaptado';
+                extractButton.onclick = extractAdaptedText;
+            } else {
+                const defaultButton = document.querySelector('button[onclick="extractAdaptedText()"]');
+                if (defaultButton) {
+                    defaultButton.innerText = 'Extrair Texto Adaptado';
+                    defaultButton.onclick = extractAdaptedText;
+                }
+            }
+        }
+
+        function resetAll() {
+            if (confirm('Tem certeza que deseja resetar tudo? Todos os dados serão perdidos.')) {
+                document.getElementById('videoCode').value = '';
+                document.getElementById('fullText').value = '';
+                document.getElementById('charLimit').value = '5000';
+                document.getElementById('language').value = '';
+                document.getElementById('result').innerHTML = '';
+                document.getElementById('inputText').value = '';
+                document.getElementById('inputTextCounter').innerHTML = '[ Caracteres: 0 | Palavras: 0 ]';
+                document.getElementById('fullTextCounter').innerHTML = '[ Caracteres: 0 | Palavras: 0 ]';
+                document.querySelectorAll('input[name="niche"]')[0].checked = true;
+                updateLanguageOptions();
+
+                // Restaurar o botão de extração
+                const extractButton = document.querySelector('button[onclick="copyText(document.getElementById(\'inputText\').value)"]');
+                if (extractButton) {
+                    extractButton.innerText = 'Extrair Texto Adaptado';
+                    extractButton.onclick = extractAdaptedText;
+                } else {
+                    const defaultButton = document.querySelector('button[onclick="extractAdaptedText()"]');
+                    if (defaultButton) {
+                        defaultButton.innerText = 'Extrair Texto Adaptado';
+                        defaultButton.onclick = extractAdaptedText;
+                    }
+                }
+            }
+        }
+    </script>
+    <div class="signature">Desenvolvido por @jhowreix</div>
+</body>
+</html>
